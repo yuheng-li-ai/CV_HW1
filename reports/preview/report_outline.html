@@ -1,0 +1,362 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Report Preview</title><style>body { font-family: Georgia, "Times New Roman", serif; margin: 40px auto; max-width: 920px; padding: 0 24px; line-height: 1.68; color: #1f2328; background: #fcfcf8; } h1, h2, h3, h4 { line-height: 1.25; color: #111; } h1 { border-bottom: 2px solid #d0d7de; padding-bottom: 0.3em; } h2 { margin-top: 1.8em; border-bottom: 1px solid #d8dee4; padding-bottom: 0.2em; } code { background: #f1f3f5; padding: 0.15em 0.35em; border-radius: 4px; font-size: 0.92em; } pre code { display: block; padding: 1em; overflow-x: auto; } pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; overflow: hidden; } table { border-collapse: collapse; width: 100%; margin: 1em 0; } th, td { border: 1px solid #d0d7de; padding: 0.6em 0.8em; text-align: left; } th { background: #f6f8fa; } img { max-width: 100%; height: auto; display: block; margin: 1em auto; border: 1px solid #d8dee4; background: white; } blockquote { margin: 1em 0; padding: 0.2em 1em; border-left: 4px solid #d0d7de; color: #57606a; }</style></head><body><h1>Fashion-MNIST Classification with a Three-Layer Neural Network Implemented from Scratch</h1>
+<h2>Abstract</h2>
+<p>This report presents a from-scratch three-layer multilayer perceptron for Fashion-MNIST classification. The full training pipeline is implemented with NumPy, including forward propagation, backward propagation, loss computation, optimization, checkpoint selection, evaluation, and visualization. The study focuses on controlled comparisons of learning rate, activation function, weight decay, hidden dimension, and scheduler choice. Short-run experiments identify a strong optimization region, and a 200-epoch refinement stage is then used to select the final model. The final configuration uses hidden dimension 512, Leaky ReLU, initial learning rate 0.3, weight decay 1e-4, and step decay with a 50-epoch interval. This model reaches 0.9132 validation accuracy and 0.9006 test accuracy.</p>
+<h2>1. Introduction</h2>
+<p>The purpose of this project is to train a Fashion-MNIST classifier under the assignment constraint that all gradients and parameter updates must be implemented manually. The target model is intentionally simple: a three-layer MLP without convolutional structure or framework-based autodiff. This makes the experimental conclusions more directly attributable to optimization and representation choices. The main emphasis of the project is therefore not architectural novelty, but controlled analysis of how hyperparameters affect optimization quality and final accuracy.</p>
+<h2>2. Method</h2>
+<p>The classifier takes a 784-dimensional flattened input and maps it to ten output logits through two hidden layers and one output layer. Hidden width is configurable, and the nonlinearities can be switched across several activation functions. Training uses softmax cross-entropy with a numerically stabilized formulation and SGD with optional L2 regularization. The code does not use explicit early stopping. Instead, training proceeds for a fixed number of epochs and stores the checkpoint with the highest validation accuracy. This policy satisfies the assignment requirement of validation-based best-model saving while keeping the training loop simple and reproducible.</p>
+<p>Fashion-MNIST images are normalized to the range [0, 1], and the original training split is further divided into training and validation subsets with a validation ratio of 0.1. All hyperparameter comparisons are based on validation performance, and the test set is used only after the final model is selected.</p>
+<h2>3. Experimental Setup</h2>
+<p>The experiments were conducted in two stages. The first stage used 20-epoch runs to screen candidate hyperparameters quickly. The second stage used longer training to verify whether the short-run ranking remained stable after more complete optimization.</p>
+<p>The final selected configuration is shown in Table 1.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input dimension</td>
+<td>784</td>
+</tr>
+<tr>
+<td>Hidden dimension</td>
+<td>512</td>
+</tr>
+<tr>
+<td>Output dimension</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Activation</td>
+<td>Leaky ReLU</td>
+</tr>
+<tr>
+<td>Batch size</td>
+<td>128</td>
+</tr>
+<tr>
+<td>Initial learning rate</td>
+<td>0.3</td>
+</tr>
+<tr>
+<td>Weight decay</td>
+<td>1e-4</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td>Step decay</td>
+</tr>
+<tr>
+<td>Step size</td>
+<td>50</td>
+</tr>
+<tr>
+<td>Gamma</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td>Number of epochs</td>
+<td>200</td>
+</tr>
+<tr>
+<td>Best validation epoch</td>
+<td>81</td>
+</tr>
+</tbody>
+</table>
+<h2>4. Results</h2>
+<h3>4.1 Learning-Rate Comparison</h3>
+<p>The first question was whether the baseline learning rate was already large enough. Under the short-run ReLU setting, validation accuracy improved steadily as the initial learning rate increased from 0.01 to 0.3. This immediately showed that the original baseline range was too conservative. A second sweep then tested whether values above 0.3 would continue to improve the result. The answer was negative. A learning rate of 0.5 remained trainable but slightly weaker than 0.3, while 1.0 caused optimization collapse and produced accuracy close to random guessing. The useful region was therefore centered around 0.3 rather than around 0.05 or 0.1.</p>
+<table>
+<thead>
+<tr>
+<th>Learning rate</th>
+<th>Best validation accuracy</th>
+<th>Best epoch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.01</td>
+<td>0.8478</td>
+<td>16</td>
+</tr>
+<tr>
+<td>0.05</td>
+<td>0.8813</td>
+<td>20</td>
+</tr>
+<tr>
+<td>0.10</td>
+<td>0.8928</td>
+<td>20</td>
+</tr>
+<tr>
+<td>0.15</td>
+<td>0.8962</td>
+<td>20</td>
+</tr>
+<tr>
+<td>0.20</td>
+<td>0.8988</td>
+<td>19</td>
+</tr>
+<tr>
+<td>0.30</td>
+<td>0.9010</td>
+<td>19</td>
+</tr>
+<tr>
+<td>0.50</td>
+<td>0.8950</td>
+<td>19</td>
+</tr>
+<tr>
+<td>1.00</td>
+<td>0.1040</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Figure 1. Training-loss comparison across learning rates." src="../../artifacts/figures/lr_comparison/train_loss_comparison.png" /></p>
+<p><img alt="Figure 2. Validation-loss comparison across learning rates." src="../../artifacts/figures/lr_comparison/val_loss_comparison.png" /></p>
+<p><img alt="Figure 3. Validation-accuracy comparison across learning rates." src="../../artifacts/figures/lr_comparison/val_accuracy_comparison.png" /></p>
+<p>The curves support the numerical result. Moderate increases in learning rate improved optimization speed and final validation accuracy, but the largest tested value destroyed stability. Observation: the useful learning-rate region extends well beyond the initial baseline. Explanation: the original step size underutilized the optimization budget, while 1.0 overshot the stable region. Conclusion: 0.3 is the strongest learning-rate candidate in the tested range.</p>
+<h3>4.2 Activation Comparison</h3>
+<p>The activation comparison was first performed under the 20-epoch setting to identify strong candidates efficiently. ReLU ranked first, but Leaky ReLU was already very close. Sigmoid was clearly the weakest activation, while Tanh, ELU, Swish, and Softplus formed a middle group with smaller differences.</p>
+<table>
+<thead>
+<tr>
+<th>Activation</th>
+<th>Best validation accuracy</th>
+<th>Best epoch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ReLU</td>
+<td>0.9010</td>
+<td>19</td>
+</tr>
+<tr>
+<td>Leaky ReLU</td>
+<td>0.8998</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Tanh</td>
+<td>0.8958</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Swish</td>
+<td>0.8927</td>
+<td>18</td>
+</tr>
+<tr>
+<td>ELU</td>
+<td>0.8917</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Softplus</td>
+<td>0.8800</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Sigmoid</td>
+<td>0.8565</td>
+<td>20</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Figure 4. Training-loss comparison across activations." src="../../artifacts/figures/activation_comparison/train_loss_comparison.png" /></p>
+<p><img alt="Figure 5. Validation-loss comparison across activations." src="../../artifacts/figures/activation_comparison/val_loss_comparison.png" /></p>
+<p><img alt="Figure 6. Validation-accuracy comparison across activations." src="../../artifacts/figures/activation_comparison/val_accuracy_comparison.png" /></p>
+<p>Under the short horizon, ReLU looked like the natural final choice. However, this ranking changed after longer optimization. A dedicated 200-epoch comparison between ReLU and Leaky ReLU showed that Leaky ReLU eventually overtook ReLU.</p>
+<table>
+<thead>
+<tr>
+<th>Activation</th>
+<th>Epochs</th>
+<th>Best validation accuracy</th>
+<th>Best epoch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ReLU</td>
+<td>200</td>
+<td>0.9122</td>
+<td>140</td>
+</tr>
+<tr>
+<td>Leaky ReLU</td>
+<td>200</td>
+<td>0.9132</td>
+<td>81</td>
+</tr>
+</tbody>
+</table>
+<p>This long-run result is important because it shows that the short-run ranking was not final. Observation: Leaky ReLU achieves a slightly higher peak and reaches it earlier. Explanation: the longer horizon exposes a small but consistent optimization advantage that is not fully visible in the 20-epoch runs. Conclusion: Leaky ReLU is selected for the final model.</p>
+<h3>4.3 Weight-Decay Comparison</h3>
+<p>The weight-decay study was carried out with ReLU, hidden dimension 128, and learning rate 0.3 fixed. The results show that mild regularization helps, but the gain is modest. Zero regularization and 5e-4 are both close to the best value, while 1e-3 is clearly too strong.</p>
+<table>
+<thead>
+<tr>
+<th>Weight decay</th>
+<th>Best validation accuracy</th>
+<th>Best epoch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0.9012</td>
+<td>19</td>
+</tr>
+<tr>
+<td>1e-4</td>
+<td>0.9023</td>
+<td>20</td>
+</tr>
+<tr>
+<td>5e-4</td>
+<td>0.9010</td>
+<td>19</td>
+</tr>
+<tr>
+<td>1e-3</td>
+<td>0.8978</td>
+<td>20</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Figure 7. Training-loss comparison across weight-decay values." src="../../artifacts/figures/weight_decay_comparison/train_loss_comparison.png" /></p>
+<p><img alt="Figure 8. Validation-loss comparison across weight-decay values." src="../../artifacts/figures/weight_decay_comparison/val_loss_comparison.png" /></p>
+<p><img alt="Figure 9. Validation-accuracy comparison across weight-decay values." src="../../artifacts/figures/weight_decay_comparison/val_accuracy_comparison.png" /></p>
+<p>Observation: a small L2 penalty produces the strongest validation result, while stronger regularization degrades performance. Explanation: weak regularization suppresses excessive parameter growth without removing too much capacity. Conclusion: 1e-4 is retained in the final setting.</p>
+<h3>4.4 Hidden-Dimension Comparison</h3>
+<p>The hidden-dimension study examined whether additional capacity continued to improve validation accuracy. Performance increased steadily from 64 to 512, which justified moving away from the original 128-dimensional baseline. The extended comparison then checked whether the trend continued beyond 512. It did not. Both 768 and 1024 fell slightly below 512 while substantially increasing training cost.</p>
+<table>
+<thead>
+<tr>
+<th>Hidden dimension</th>
+<th>Best validation accuracy</th>
+<th>Best epoch</th>
+<th>Training time (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>64</td>
+<td>0.8967</td>
+<td>17</td>
+<td>16.38</td>
+</tr>
+<tr>
+<td>128</td>
+<td>0.9023</td>
+<td>20</td>
+<td>27.05</td>
+</tr>
+<tr>
+<td>256</td>
+<td>0.9043</td>
+<td>19</td>
+<td>68.65</td>
+</tr>
+<tr>
+<td>512</td>
+<td>0.9100</td>
+<td>20</td>
+<td>154.74</td>
+</tr>
+<tr>
+<td>768</td>
+<td>0.9078</td>
+<td>19</td>
+<td>307.92</td>
+</tr>
+<tr>
+<td>1024</td>
+<td>0.9077</td>
+<td>20</td>
+<td>372.23</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Figure 10. Training-loss comparison across hidden dimensions." src="../../artifacts/figures/hidden_dim_comparison/train_loss_comparison.png" /></p>
+<p><img alt="Figure 11. Validation-loss comparison across hidden dimensions." src="../../artifacts/figures/hidden_dim_comparison/val_loss_comparison.png" /></p>
+<p><img alt="Figure 12. Validation-accuracy comparison across hidden dimensions." src="../../artifacts/figures/hidden_dim_comparison/val_accuracy_comparison.png" /></p>
+<p>Observation: validation performance improves up to 512 and then saturates. Explanation: increasing width initially raises representational capacity, but the later gains become too small to offset optimization cost and mild overcapacity. Conclusion: 512 is the strongest width in the tested range.</p>
+<h3>4.5 Scheduler Comparison</h3>
+<p>Scheduler comparison was conducted under the strongest short-run setting with hidden dimension 512. Step decay produced the highest validation accuracy, with cosine decay only slightly behind. No decay was clearly weaker, and exponential decay fell much further behind.</p>
+<table>
+<thead>
+<tr>
+<th>Scheduler</th>
+<th>Best validation accuracy</th>
+<th>Best epoch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None</td>
+<td>0.9033</td>
+<td>19</td>
+</tr>
+<tr>
+<td>Step</td>
+<td>0.9100</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Exponential</td>
+<td>0.8852</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Cosine</td>
+<td>0.9093</td>
+<td>18</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Figure 13. Training-loss comparison across schedulers." src="../../artifacts/figures/scheduler_comparison/train_loss_comparison.png" /></p>
+<p><img alt="Figure 14. Validation-loss comparison across schedulers." src="../../artifacts/figures/scheduler_comparison/val_loss_comparison.png" /></p>
+<p><img alt="Figure 15. Validation-accuracy comparison across schedulers." src="../../artifacts/figures/scheduler_comparison/val_accuracy_comparison.png" /></p>
+<p>Observation: step and cosine are both strong, but step remains slightly ahead in the 20-epoch comparison. Explanation: short-run staged decay keeps the learning rate high enough for fast progress while still reducing it in later epochs. Conclusion: step decay is kept for the final model, but its interval is lengthened for the 200-epoch run.</p>
+<h3>4.6 Final Model Curves</h3>
+<p>The final model uses Leaky ReLU, hidden dimension 512, learning rate 0.3, weight decay 1e-4, and a 200-epoch step schedule with decay every 50 epochs. The best validation result appears at epoch 81. This confirms that validation-based checkpoint selection is necessary even in a long training run.</p>
+<p><img alt="Figure 16. Final training and validation loss curves." src="../../artifacts/runs/final_model/figures/loss_curves.png" /></p>
+<p><img alt="Figure 17. Final validation accuracy curve." src="../../artifacts/runs/final_model/figures/val_accuracy_curve.png" /></p>
+<p>The curve does not indicate severe early overfitting, but it does show that the highest-quality checkpoint is reached well before the end of training. Observation: validation improvement slows and peaks before the final epoch. Explanation: the model continues to optimize training loss after the best generalization point has already appeared. Conclusion: fixed-epoch training plus best-checkpoint selection is appropriate for this pipeline.</p>
+<h3>4.7 Final Test Accuracy and Confusion Matrix</h3>
+<p>The final selected checkpoint achieved 0.9006 accuracy on the test set.</p>
+<p><img alt="Figure 18. Confusion matrix on the final test set." src="../../artifacts/runs/final_model/figures/confusion_matrix.png" /></p>
+<p>Per-class performance is uneven. Trouser, sneaker, bag, and ankle boot are recognized with very high accuracy, while shirt remains the weakest class. The confusion matrix indicates that the dominant failure pattern is not random noise but overlap among visually similar upper-body categories.</p>
+<h2>5. Representation Analysis</h2>
+<h3>5.1 First-Layer Weight Visualization</h3>
+<p>The first-layer weights, reshaped back into 28 by 28 maps, show structured spatial patterns rather than diffuse noise. Several neurons emphasize vertical central regions, lower-body contours, or broad edge transitions around clothing boundaries.</p>
+<p><img alt="Figure 19. First-layer weight visualization." src="../../artifacts/runs/final_model/figures/first_layer_weights.png" /></p>
+<p>Observation: many first-layer neurons respond to broad garment structure. Explanation: even without convolutions, the model can still exploit coarse spatial regularities after flattening. Conclusion: the first layer learns meaningful region-level templates rather than purely unstructured global weights.</p>
+<h3>5.2 Error Analysis</h3>
+<p>Misclassified examples are concentrated in semantically similar classes. Shirt is frequently confused with T-shirt/top, pullover, or coat, and some dress-like and coat-like instances remain ambiguous at 28 by 28 resolution.</p>
+<p><img alt="Figure 20. Representative misclassified test samples." src="../../artifacts/runs/final_model/figures/error_cases.png" /></p>
+<p>Observation: the errors cluster around visually plausible category boundaries. Explanation: flattening weakens explicit local spatial structure, which makes subtle region-level differences harder to preserve. Conclusion: the model captures broad class structure but remains limited on fine-grained upper-body distinctions.</p>
+<h3>5.3 Hidden-Feature Visualization</h3>
+<p>The t-SNE projection of the penultimate hidden representation provides a qualitative view of class separation. Several classes form compact clusters, especially those with distinctive silhouettes. Upper-body garment classes remain more entangled.</p>
+<p><img alt="Figure 21. t-SNE projection of hidden representations." src="../../artifacts/runs/final_model/figures/tsne_hidden_repr.png" /></p>
+<p>Observation: some clusters are well separated while others overlap substantially. Explanation: strong silhouette classes are easier for the MLP to encode in a linearly separable form, whereas classes with weak contour contrast remain mixed. Conclusion: the learned representation is discriminative but not uniformly clean across all categories.</p>
+<h2>6. Conclusion</h2>
+<p>The final model was obtained through staged search rather than through a single exhaustive sweep. The main findings are consistent across the experiments. First, the initial learning-rate range was too small, and the useful region extended to 0.3. Second, mild weight decay outperformed both stronger regularization and none at all. Third, hidden-dimension gains saturated beyond 512, which made 512 the best width in the tested range. Fourth, step decay remained slightly stronger than cosine under the short-run comparison and provided a suitable backbone for long training. Finally, the activation ranking changed with training horizon: ReLU led in short runs, but Leaky ReLU slightly surpassed it in the 200-epoch comparison and was therefore selected for the final model.</p>
+<p>The final checkpoint achieved 0.9132 validation accuracy and 0.9006 test accuracy. The confusion matrix, error cases, and t-SNE projection indicate that the main remaining weakness lies in distinguishing visually similar upper-body categories after flattening. Even with that limitation, the system satisfies the assignment requirements and provides a complete, reproducible experimental pipeline.</p>
+<h2>7. Repository and External Resources</h2>
+<ul>
+<li>GitHub repository: To be filled</li>
+<li>Model-weight download link: To be filled</li>
+</ul></body></html>

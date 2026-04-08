@@ -1,0 +1,19 @@
+search_type: grid
+num_trials: null
+
+base_config: ./configs/baseline.yaml
+
+grid:
+  model.activation: [relu, leaky_relu]
+  model.hidden_dim: [512]
+  train.learning_rate: [0.3]
+  train.weight_decay: [0.0001]
+  train.epochs: [200]
+  train.lr_decay.name: [step]
+  train.lr_decay.step_size: [50]
+  train.lr_decay.gamma: [0.5]
+
+notes:
+  - Long-run activation comparison between ReLU and Leaky ReLU.
+  - The training horizon is extended to 200 epochs.
+  - Step decay is kept, but the decay interval is lengthened to 50 epochs.

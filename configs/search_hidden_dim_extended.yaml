@@ -1,0 +1,14 @@
+search_type: grid
+num_trials: null
+
+base_config: ./configs/baseline.yaml
+
+grid:
+  model.activation: [relu]
+  model.hidden_dim: [256, 512, 768, 1024]
+  train.learning_rate: [0.3]
+  train.weight_decay: [0.0001]
+
+notes:
+  - Extended hidden-dimension study for the stronger ReLU setting.
+  - This stage checks whether performance continues to improve beyond 512 or starts to saturate.

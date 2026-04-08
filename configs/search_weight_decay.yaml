@@ -1,0 +1,14 @@
+search_type: grid
+num_trials: null
+
+base_config: ./configs/baseline.yaml
+
+grid:
+  model.activation: [relu]
+  model.hidden_dim: [128]
+  train.learning_rate: [0.3]
+  train.weight_decay: [0.0, 0.0001, 0.0005, 0.001]
+
+notes:
+  - Weight-decay comparison under the stronger ReLU setting.
+  - Activation, hidden dimension, and learning rate are fixed to isolate the regularization effect.

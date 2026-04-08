@@ -1,0 +1,35 @@
+seed: 42
+dataset:
+  name: fashion_mnist
+  data_dir: ./artifacts/data
+  val_ratio: 0.1
+  normalize: true
+
+model:
+  input_dim: 784
+  hidden_dim: 512
+  output_dim: 10
+  activation: leaky_relu
+
+train:
+  epochs: 200
+  batch_size: 128
+  learning_rate: 0.3
+  weight_decay: 0.0001
+  lr_decay:
+    name: step
+    step_size: 50
+    gamma: 0.5
+
+checkpoint:
+  save_dir: ./artifacts/checkpoints/final_model
+  monitor: val_accuracy
+
+logging:
+  run_name: final_model
+  output_dir: ./artifacts/runs
+
+visualization:
+  tsne_sample_size: 2000
+  max_error_cases: 16
+  max_weight_maps: 64

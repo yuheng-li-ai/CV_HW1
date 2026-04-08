@@ -1,0 +1,14 @@
+search_type: grid
+num_trials: null
+
+base_config: ./configs/baseline.yaml
+
+grid:
+  model.activation: [relu]
+  model.hidden_dim: [128]
+  train.learning_rate: [0.01, 0.05, 0.1, 0.15, 0.2, 0.3]
+  train.weight_decay: [0.0005]
+
+notes:
+  - Extended learning-rate study for the ReLU baseline.
+  - This stage checks whether values above 0.1 improve validation performance or introduce optimization instability.

@@ -1,0 +1,15 @@
+search_type: grid
+num_trials: null
+
+base_config: ./configs/baseline.yaml
+
+grid:
+  model.activation: [relu]
+  model.hidden_dim: [512]
+  train.learning_rate: [0.3]
+  train.weight_decay: [0.0001]
+  train.lr_decay.name: [none, step, exponential, cosine]
+
+notes:
+  - Scheduler comparison under the current candidate configuration.
+  - This stage keeps activation, hidden dimension, learning rate, and weight decay fixed while varying only the decay strategy.

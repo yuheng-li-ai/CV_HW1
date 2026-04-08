@@ -1,0 +1,14 @@
+search_type: grid
+num_trials: null
+
+base_config: ./configs/baseline.yaml
+
+grid:
+  model.activation: [relu]
+  model.hidden_dim: [128]
+  train.learning_rate: [0.3, 0.5, 1.0]
+  train.weight_decay: [0.0005]
+
+notes:
+  - High-learning-rate stress test for the ReLU baseline.
+  - This stage checks whether learning rates above 0.3 still improve performance or start to destabilize optimization.

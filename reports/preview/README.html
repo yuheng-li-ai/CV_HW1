@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>README Preview</title><style>body { font-family: Georgia, "Times New Roman", serif; margin: 40px auto; max-width: 920px; padding: 0 24px; line-height: 1.68; color: #1f2328; background: #fcfcf8; } h1, h2, h3, h4 { line-height: 1.25; color: #111; } h1 { border-bottom: 2px solid #d0d7de; padding-bottom: 0.3em; } h2 { margin-top: 1.8em; border-bottom: 1px solid #d8dee4; padding-bottom: 0.2em; } code { background: #f1f3f5; padding: 0.15em 0.35em; border-radius: 4px; font-size: 0.92em; } pre code { display: block; padding: 1em; overflow-x: auto; } pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px; overflow: hidden; } table { border-collapse: collapse; width: 100%; margin: 1em 0; } th, td { border: 1px solid #d0d7de; padding: 0.6em 0.8em; text-align: left; } th { background: #f6f8fa; } img { max-width: 100%; height: auto; display: block; margin: 1em auto; border: 1px solid #d8dee4; background: white; } blockquote { margin: 1em 0; padding: 0.2em 1em; border-left: 4px solid #d0d7de; color: #57606a; }</style></head><body><h1>CV HW1: Three-Layer Fashion-MNIST MLP from Scratch</h1>
+<p>This repository contains a from-scratch implementation of a three-layer multilayer perceptron for Fashion-MNIST classification. The project follows the homework constraint that PyTorch, TensorFlow, JAX, and any other framework with built-in automatic differentiation must not be used. Forward propagation, backpropagation, optimization, checkpoint selection, evaluation, and visualization are implemented with NumPy and standard scientific Python utilities.</p>
+<h2>Features</h2>
+<ul>
+<li>Three-layer MLP with manually implemented backpropagation</li>
+<li>Configurable hidden dimension</li>
+<li>Switchable activation functions:
+  <code>relu</code>, <code>sigmoid</code>, <code>tanh</code>, <code>leaky_relu</code>, <code>elu</code>, <code>softplus</code>, <code>swish</code></li>
+<li>SGD optimizer with L2 regularization</li>
+<li>Learning-rate schedulers:
+  <code>none</code>, <code>step</code>, <code>exponential</code>, <code>cosine</code></li>
+<li>Validation-based checkpoint selection</li>
+<li>Hyperparameter search entrypoints</li>
+<li>Evaluation pipeline with accuracy, confusion matrix, per-class accuracy, and t-SNE</li>
+<li>Visualization pipeline for training curves, first-layer weights, error cases, and hidden-feature projections</li>
+</ul>
+<h2>Environment</h2>
+<p>Recommended Python version: <code>Python 3.11</code></p>
+<p>Install dependencies with:</p>
+<pre><code class="language-bash">pip install -r requirements.txt
+</code></pre>
+<h2>Repository Layout</h2>
+<pre><code class="language-text">.
+├── configs/
+├── scripts/
+├── src/cvhw1/
+├── reports/
+├── artifacts/
+├── notes/
+├── HW1_计算机视觉.pdf
+└── HW1_作业解析与执行计划.md
+</code></pre>
+<h2>Final Model</h2>
+<p>The current final configuration is stored in <a href="/home/lyh/study/CV/configs/final_model.yaml">configs/final_model.yaml</a>:</p>
+<ul>
+<li>activation: <code>leaky_relu</code></li>
+<li>hidden dimension: <code>512</code></li>
+<li>learning rate: <code>0.3</code></li>
+<li>weight decay: <code>1e-4</code></li>
+<li>epochs: <code>200</code></li>
+<li>scheduler: <code>step</code></li>
+<li>step size: <code>50</code></li>
+<li>gamma: <code>0.5</code></li>
+</ul>
+<p>This model achieved:</p>
+<ul>
+<li>best validation accuracy: <code>0.9132</code></li>
+<li>best validation epoch: <code>81</code></li>
+<li>test accuracy: <code>0.9006</code></li>
+</ul>
+<p>Training metrics are stored in <a href="/home/lyh/study/CV/artifacts/runs/grid_002_activation-leaky_relu_hidden_dim-512_learning_rate-0.3_weight_decay-0.0001_epochs-200_name-step_step_size-50_gamma-0.5/train_metrics.json">train_metrics.json</a>, and test metrics are stored in <a href="/home/lyh/study/CV/artifacts/runs/final_model/evaluation/evaluation_metrics.json">evaluation_metrics.json</a>.</p>
+<h2>Main Commands</h2>
+<p>Train a configuration:</p>
+<pre><code class="language-bash">python scripts/train.py --config configs/baseline.yaml
+</code></pre>
+<p>Run a search configuration:</p>
+<pre><code class="language-bash">python scripts/search.py --config configs/search_hidden_dim.yaml
+</code></pre>
+<p>Evaluate the final checkpoint:</p>
+<pre><code class="language-bash">python scripts/evaluate.py \
+  --config configs/final_model.yaml \
+  --checkpoint artifacts/checkpoints/grid_002_activation-leaky_relu_hidden_dim-512_learning_rate-0.3_weight_decay-0.0001_epochs-200_name-step_step_size-50_gamma-0.5/best_model.npz \
+  --output-dir artifacts/runs/final_model/evaluation \
+  --tsne
+</code></pre>
+<p>Generate final report figures:</p>
+<pre><code class="language-bash">python scripts/visualize.py \
+  --config configs/final_model.yaml \
+  --checkpoint artifacts/checkpoints/grid_002_activation-leaky_relu_hidden_dim-512_learning_rate-0.3_weight_decay-0.0001_epochs-200_name-step_step_size-50_gamma-0.5/best_model.npz \
+  --run-dir artifacts/runs/grid_002_activation-leaky_relu_hidden_dim-512_learning_rate-0.3_weight_decay-0.0001_epochs-200_name-step_step_size-50_gamma-0.5 \
+  --output-dir artifacts/runs/final_model/figures \
+  --tsne
+</code></pre>
+<p>Run the 200-epoch ReLU vs. Leaky ReLU comparison:</p>
+<pre><code class="language-bash">python scripts/search.py --config configs/search_activation_long_200.yaml
+</code></pre>
+<h2>Experimental Summary</h2>
+<p>The project used a staged search procedure rather than a single uncontrolled grid.</p>
+<h3>Learning Rate</h3>
+<p>Under the short-run ReLU setting, validation performance improved as the learning rate increased from <code>0.01</code> to <code>0.3</code>, while <code>1.0</code> collapsed to near-random behavior. This established <code>0.3</code> as the strongest candidate region.</p>
+<h3>Activation Function</h3>
+<p>At <code>20</code> epochs, <code>ReLU</code> slightly outperformed the other nonlinearities and <code>Leaky ReLU</code> was the closest competitor. After extending training to <code>200</code> epochs with the stronger schedule, <code>Leaky ReLU</code> slightly surpassed <code>ReLU</code>, which motivated the final activation choice.</p>
+<h3>Weight Decay</h3>
+<p>Mild regularization performed best. <code>1e-4</code> slightly outperformed both no regularization and stronger penalties, while <code>1e-3</code> degraded validation accuracy.</p>
+<h3>Hidden Dimension</h3>
+<p>Validation performance improved from <code>64</code> to <code>512</code>, but the gain saturated beyond <code>512</code>. Additional experiments at <code>768</code> and <code>1024</code> did not surpass the <code>512</code>-dimensional model while substantially increasing training cost.</p>
+<h3>Scheduler</h3>
+<p>At <code>20</code> epochs with the strongest short-run configuration, <code>step</code> and <code>cosine</code> were the two strongest schedulers, with <code>step</code> slightly ahead. The final long-run configuration retained <code>step</code> decay but used a longer interval (<code>50</code> epochs) to make the schedule meaningful over <code>200</code> epochs.</p>
+<h2>Training Policy</h2>
+<p>This project does not use explicit early stopping. Training runs for a fixed number of epochs, and the best checkpoint is selected according to validation accuracy. This design satisfies the homework requirement of automatic best-checkpoint saving on the validation set while keeping the training pipeline simple and reproducible.</p>
+<h2>Outputs</h2>
+<p>Training logs, checkpoints, evaluation results, and figures are written under <code>artifacts/</code>.</p>
+<p>Typical outputs include:</p>
+<ul>
+<li><code>artifacts/checkpoints/.../best_model.npz</code></li>
+<li><code>artifacts/runs/.../history.json</code></li>
+<li><code>artifacts/runs/.../train_metrics.json</code></li>
+<li><code>artifacts/runs/.../evaluation/evaluation_metrics.json</code></li>
+<li><code>artifacts/runs/.../figures/loss_curves.png</code></li>
+<li><code>artifacts/runs/.../figures/confusion_matrix.png</code></li>
+<li><code>artifacts/runs/.../figures/first_layer_weights.png</code></li>
+<li><code>artifacts/runs/.../figures/error_cases.png</code></li>
+<li><code>artifacts/runs/.../figures/tsne_hidden_repr.png</code></li>
+<li><code>artifacts/figures/</code> for organized comparison figures across experiments</li>
+</ul>
+<h2>Report Assets</h2>
+<p>The final model figures are located in <a href="/home/lyh/study/CV/artifacts/runs/final_model/figures">artifacts/runs/final_model/figures</a>. Organized comparison figures are located under <a href="/home/lyh/study/CV/artifacts/figures">artifacts/figures</a>, including:</p>
+<ul>
+<li>learning-rate comparisons</li>
+<li>activation comparisons</li>
+<li>weight-decay comparisons</li>
+<li>hidden-dimension comparisons</li>
+<li>scheduler comparisons</li>
+</ul>
+<h2>Assignment Boundary</h2>
+<ul>
+<li>Do not use PyTorch, TensorFlow, JAX, or any framework with built-in autodiff.</li>
+<li>Use NumPy for numerical computation and implement backward propagation manually.</li>
+</ul>
+<h2>Notes</h2>
+<ul>
+<li>The report is written in English and stored under <code>reports/</code>.</li>
+<li>Final trained weights should be uploaded to an external host, and the report should include the download link.</li>
+</ul></body></html>
