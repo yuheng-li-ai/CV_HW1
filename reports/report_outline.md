@@ -1,5 +1,7 @@
 # Fashion-MNIST Classification with a Three-Layer Neural Network Implemented from Scratch
 
+Repository: https://github.com/yuheng-li-ai/CV_HW1
+
 ## Abstract
 
 This report presents a from-scratch three-layer multilayer perceptron for Fashion-MNIST classification. The full training pipeline is implemented with NumPy, including forward propagation, backward propagation, loss computation, optimization, checkpoint selection, evaluation, and visualization. The study focuses on controlled comparisons of learning rate, activation function, weight decay, hidden dimension, and scheduler choice. Short-run experiments identify a strong optimization region, and a 200-epoch refinement stage is then used to select the final model. The final configuration uses hidden dimension 512, Leaky ReLU, initial learning rate 0.3, weight decay 1e-4, and step decay with a 50-epoch interval. This model reaches 0.9132 validation accuracy and 0.9006 test accuracy.
@@ -198,7 +200,6 @@ The final model was obtained through staged search rather than through a single 
 
 The final checkpoint achieved 0.9132 validation accuracy and 0.9006 test accuracy. The confusion matrix, error cases, and t-SNE projection indicate that the main remaining weakness lies in distinguishing visually similar upper-body categories after flattening. Even with that limitation, the system satisfies the assignment requirements and provides a complete, reproducible experimental pipeline.
 
-## 7. Repository and External Resources
+## 7. External Resources
 
-- GitHub repository: To be filled
 - Model-weight download link: To be filled

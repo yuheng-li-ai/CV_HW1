@@ -1,5 +1,7 @@
 # CV HW1: Three-Layer Fashion-MNIST MLP from Scratch
 
+Repository: https://github.com/yuheng-li-ai/CV_HW1
+
 This repository contains a from-scratch implementation of a three-layer multilayer perceptron for Fashion-MNIST classification. The project follows the homework constraint that PyTorch, TensorFlow, JAX, and any other framework with built-in automatic differentiation must not be used. Forward propagation, backpropagation, optimization, checkpoint selection, evaluation, and visualization are implemented with NumPy and standard scientific Python utilities.
 
 ## Features
