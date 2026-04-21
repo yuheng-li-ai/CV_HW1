@@ -202,4 +202,4 @@ The final checkpoint achieved 0.9132 validation accuracy and 0.9006 test accurac
 
 ## 7. External Resources
 
-- Model-weight download link: To be filled
+- Model-weight download link: https://www.modelscope.cn/models/yuhengli/cv-hw1-final-model/resolve/master/best_model.npz

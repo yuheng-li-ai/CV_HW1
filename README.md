@@ -167,4 +167,5 @@ The final model figures are located in [artifacts/runs/final_model/figures](/hom
 ## Notes
 
 - The report is written in English and stored under `reports/`.
-- Final trained weights should be uploaded to an external host, and the report should include the download link.
+- Final trained weights are hosted on ModelScope:
+  `https://www.modelscope.cn/models/yuhengli/cv-hw1-final-model/resolve/master/best_model.npz`
